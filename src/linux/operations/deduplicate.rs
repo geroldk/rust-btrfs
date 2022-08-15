@@ -186,8 +186,16 @@ pub fn deduplicate_files_with_source <
 	let source_file_descriptor =
 		
 		
-			OpenOptions::new().read(true).write(true).open(source_filename)?;
+			match OpenOptions::new().read(true).write(true).open(source_filename)  {
+ 				o@Ok(_)  => o,
+				e@Err(_) => {
+					println!("{}", source_filename.to_string_lossy());
+					e
+				}
 
+			}?;
+
+	
 	
 
 	let mut target_file_descriptors: Vec <File> =
@@ -198,7 +206,14 @@ pub fn deduplicate_files_with_source <
 		let dest_filename =
 			dest_filename.as_ref ();
 
-		let target_file_descriptor = 			OpenOptions::new().read(true).write(true).open(dest_filename)?;
+		let target_file_descriptor = 				match OpenOptions::new().read(true).write(true).open(dest_filename)  {
+			o@Ok(_)  => o,
+		   e@Err(_) => {
+			   println!("{}", dest_filename.to_string_lossy());
+			   e
+		   }
+
+	   }?;
 
 
 		target_file_descriptors.push (
