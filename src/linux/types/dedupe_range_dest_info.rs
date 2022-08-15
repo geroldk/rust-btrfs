@@ -6,7 +6,6 @@ pub struct DedupeRangeDestInfo {
 	pub dest_offset: u64,
 	pub bytes_deduped: u64,
 	pub status: DedupeRangeStatus,
-	pub reserved: u32, 
 }
 
 // ex: noet ts=4 filetype=rust

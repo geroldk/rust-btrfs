@@ -264,7 +264,6 @@ pub fn deduplicate_files_with_source <
 				dest_offset: 0,
 				bytes_deduped: 0,
 				status: DedupeRangeStatus::Same,
-				reserved: 0,
 			}
 
 		).collect (),
@@ -281,6 +280,9 @@ pub fn deduplicate_files_with_source <
 	// process result
 
 	// TODO
+	for i in 0 ..  dedupe_range.dest_infos.len() {
+		println!("{:?} {:?} {:?}", dedupe_range.dest_infos[i].status, source_filename, dest_filenames[i].as_ref())
+	}
 
 	Ok (())
 
