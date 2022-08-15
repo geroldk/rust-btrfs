@@ -5,7 +5,7 @@ pub struct IoctlFileDedupeRange {
 	pub src_length: u64,
 	pub dest_count: u16,
 	pub reserved1: u16,
-	pub reserved2: u16,
+	pub reserved2: u32,
 }
 
 // ex: noet ts=4 filetype=rust
