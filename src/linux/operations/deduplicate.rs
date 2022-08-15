@@ -181,7 +181,7 @@ pub fn deduplicate_files_with_source <
 			source_filename,
 		).with_context(|| format!("{:?}",source_filename.to_owned()))?;
 
-	let source_file_descriptor = OpenOptions::new().read(true).write(true).open(source_filename).with_context(||source_filename.to_string_lossy().to_string())?;
+	let source_file_descriptor = OpenOptions::new().read(true).write(false).open(source_filename).with_context(||source_filename.to_string_lossy().to_string())?;
 
 	
 	
