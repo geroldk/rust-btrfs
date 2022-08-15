@@ -1,6 +1,6 @@
 use std::mem;
 
-use diskformat::*;
+use crate::diskformat::*;
 
 #[ derive (Clone, Debug) ]
 pub enum BtrfsLeafItem <'a> {

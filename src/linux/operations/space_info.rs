@@ -4,7 +4,7 @@
 //! storage used, and so is only useful in specific cases. The "file system
 //! info" functionality is, in many cases, more likely to be useful.
 
-use linux::imports::*;
+use crate::linux::imports::*;
 
 // ---------- get space info
 
@@ -20,10 +20,10 @@ pub fn get_space_info (
 	loop {
 
 		c_space_info =
-			try! (
+			 (
 				get_c_space_info (
 					file_descriptor,
-					num_spaces));
+					num_spaces))?;
 
 		if c_space_info.args.total_spaces
 			<= c_space_info.args.space_slots {

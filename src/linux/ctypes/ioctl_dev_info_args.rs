@@ -1,5 +1,5 @@
-use linux::ctypes::ioctl_constants::*;
-use linux::ctypes::ioctl_device_path::*;
+use crate::linux::ctypes::ioctl_constants::*;
+use crate::linux::ctypes::ioctl_device_path::*;
 
 #[ repr (C) ]
 #[ derive (Copy, Clone, Debug) ]

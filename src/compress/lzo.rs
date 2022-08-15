@@ -106,7 +106,7 @@ pub fn decompress (
 	initialise ().unwrap_or_else (
 		|error|
 
-		panic! (
+		panic! ("{}",
 			error)
 
 	);

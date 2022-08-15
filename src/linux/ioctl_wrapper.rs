@@ -1,33 +1,27 @@
-use linux::imports::*;
+
+
+use super::ctypes::{IoctlDefragRangeArgs, IoctlDevInfoArgs, IoctlFileDedupeRange, IoctlSpaceArgs, IoctlFiemap, IoctlFsInfoArgs};
 
 // ---------- btrfs
 
 pub const BTRFS_IOCTL_MAGIC: u64 = 0x94;
 
-ioctl! (
-	write ioctl_defrag_range with BTRFS_IOCTL_MAGIC, 16;
+ioctl_write_ptr! (
+	ioctl_defrag_range, BTRFS_IOCTL_MAGIC, 16,
 	IoctlDefragRangeArgs);
 
-ioctl! (
-	readwrite ioctl_dev_info with BTRFS_IOCTL_MAGIC, 30;
-	IoctlDevInfoArgs);
+ioctl_readwrite! (ioctl_dev_info, BTRFS_IOCTL_MAGIC, 30,IoctlDevInfoArgs);
 
-ioctl! (
-	readwrite ioctl_file_dedupe_range with BTRFS_IOCTL_MAGIC, 54;
-	IoctlFileDedupeRange);
+ioctl_readwrite! (ioctl_file_dedupe_range,  BTRFS_IOCTL_MAGIC, 54, IoctlFileDedupeRange);
 
-ioctl! (
-	read ioctl_fs_info with BTRFS_IOCTL_MAGIC, 31;
+ioctl_read! (
+	ioctl_fs_info, BTRFS_IOCTL_MAGIC, 31,
 	IoctlFsInfoArgs);
 
-ioctl! (
-	readwrite ioctl_space_info with BTRFS_IOCTL_MAGIC, 20;
-	IoctlSpaceArgs);
+ioctl_readwrite! ( ioctl_space_info, BTRFS_IOCTL_MAGIC, 20, IoctlSpaceArgs);
 
 // ---------- other
 
-ioctl! (
-	readwrite ioctl_fiemap with 'f' as u64, 11;
-	IoctlFiemap);
+ioctl_readwrite! (ioctl_fiemap, 'f' as u64, 11, IoctlFiemap);
 
 // ex: noet ts=4 filetype=rust

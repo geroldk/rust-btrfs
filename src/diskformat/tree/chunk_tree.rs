@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
-use diskformat::*;
+use crate::diskformat::*;
 
 pub type BtrfsChunkItemsByOffset <'a> =
 	BTreeMap <u64, BtrfsChunkItem <'a>>;

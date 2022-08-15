@@ -1,6 +1,6 @@
 use std::mem;
 
-use diskformat::*;
+use crate::diskformat::*;
 
 #[ derive (Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd) ]
 pub struct BtrfsInodeItem <'a> {

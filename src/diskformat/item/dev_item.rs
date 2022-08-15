@@ -1,4 +1,4 @@
-use diskformat::*;
+use crate::diskformat::*;
 
 #[ repr (C, packed) ]
 #[ derive (Copy, Clone) ]

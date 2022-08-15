@@ -1,4 +1,4 @@
-use linux::imports::*;
+use crate::linux::imports::*;
 
 #[ derive (Debug, Eq, PartialEq) ]
 pub enum GroupProfile {

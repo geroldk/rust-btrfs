@@ -1,6 +1,6 @@
 use std::mem;
 
-use diskformat::*;
+use crate::diskformat::*;
 
 #[ derive (Clone) ]
 pub struct BtrfsInternalNode <'a> {

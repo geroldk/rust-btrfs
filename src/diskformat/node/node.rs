@@ -1,4 +1,4 @@
-use diskformat::*;
+use crate::diskformat::*;
 
 #[ derive (Clone) ]
 pub enum BtrfsNode <'a> {

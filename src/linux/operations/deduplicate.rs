@@ -12,7 +12,7 @@
 //! limit, or deduplicate a set of files in batches, using the same source file
 //! each time, which should eventually have exactly the same result.
 
-use linux::imports::*;
+use crate::linux::imports::*;
 
 /// This function maps directly onto the kernel's deduplicate range
 /// functionality.
@@ -180,7 +180,7 @@ pub fn deduplicate_files_with_source <
 	// open files
 
 	let source_file_metadata =
-		try! (
+		(
 
 		fs::metadata (
 			source_filename,
@@ -190,14 +190,14 @@ pub fn deduplicate_files_with_source <
 			format! (
 				"Error getting metadata for {:?}: {}",
 				source_filename,
-				io_error.description ())
+				io_error)
 
-		)
+		)?
 
 	);
 
 	let source_file_descriptor =
-		try! (
+		(
 
 		FileDescriptor::open (
 			source_filename,
@@ -210,7 +210,7 @@ pub fn deduplicate_files_with_source <
 				source_filename,
 				error)
 
-		)
+		)?
 
 	);
 
@@ -223,7 +223,7 @@ pub fn deduplicate_files_with_source <
 			dest_filename.as_ref ();
 
 		let target_file_descriptor =
-			try! (
+			 (
 
 			FileDescriptor::open (
 				dest_filename,
@@ -236,7 +236,7 @@ pub fn deduplicate_files_with_source <
 					dest_filename,
 					error)
 
-			)
+			)?
 
 		);
 
@@ -264,6 +264,7 @@ pub fn deduplicate_files_with_source <
 				dest_offset: 0,
 				bytes_deduped: 0,
 				status: DedupeRangeStatus::Same,
+				reserved: 0,
 			}
 
 		).collect (),
@@ -272,10 +273,10 @@ pub fn deduplicate_files_with_source <
 
 	// perform dedupe
 
-	try! (
+	(
 		deduplicate_range (
 			source_file_descriptor.get_value (),
-			& mut dedupe_range));
+			& mut dedupe_range))?;
 
 	// process result
 

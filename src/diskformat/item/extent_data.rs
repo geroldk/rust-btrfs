@@ -5,7 +5,7 @@ use flate2;
 
 use minilzo;
 
-use diskformat::*;
+use crate::diskformat::*;
 
 #[ derive (Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd) ]
 pub struct BtrfsExtentData <'a> {
@@ -206,11 +206,11 @@ impl <'a> BtrfsExtentData <'a> {
 			}
 
 			if self.data ().other_encoding != 0 {
-
+				let tmp = self.data().other_encoding;
 				return Err (
 					format! (
 						"Unrecognised other encoding type {}",
-						self.data ().other_encoding)
+						tmp)
 				);
 
 			}
@@ -223,7 +223,7 @@ impl <'a> BtrfsExtentData <'a> {
 							raw_data)
 					)),
 
-				BTRFS_EXTENT_DATA_LZO_COMPRESSION => try! (
+				BTRFS_EXTENT_DATA_LZO_COMPRESSION =>  (
 					minilzo::decompress (
 						raw_data,
 						self.data ().logical_data_size as usize,
@@ -244,7 +244,7 @@ impl <'a> BtrfsExtentData <'a> {
 								error)
 						)
 
-					)
+					)?
 				),
 
 				BTRFS_EXTENT_DATA_ZLIB_COMPRESSION => {
@@ -265,7 +265,7 @@ impl <'a> BtrfsExtentData <'a> {
 						decompress.decompress (
 							raw_data,
 							& mut uncompressed_data,
-							flate2::Flush::Finish,
+							flate2::FlushDecompress::Finish,
 						).unwrap_or_else (
 							|error|
 
@@ -305,9 +305,9 @@ impl <'a> BtrfsExtentData <'a> {
 
 				_ =>
 					panic! (
-						format! (
+						 
 							"Unrecognised inline extent data compression {}",
-							self.data ().compression)),
+							self.data ().compression),
 
 			}
 

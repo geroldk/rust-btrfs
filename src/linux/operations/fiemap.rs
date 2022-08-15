@@ -1,4 +1,4 @@
-use linux::imports::*;
+use crate::linux::imports::*;
 
 // --------- high level wrapper
 
@@ -16,7 +16,7 @@ pub fn get_file_extent_map_for_path <
 ) -> Result <Vec <FileExtent>, String> {
 
 	let file_descriptor =
-		try! (
+		 (
 
 		FileDescriptor::open (
 			file_path,
@@ -28,7 +28,7 @@ pub fn get_file_extent_map_for_path <
 				"Error opening file: {}",
 				error)
 
-		)
+		)?
 
 	);
 
@@ -49,10 +49,10 @@ pub fn get_file_extent_map (
 	loop {
 
 		c_file_extent_map =
-			try! (
+			(
 				get_c_file_extent_map (
 					file_descriptor,
-					extent_count));
+					extent_count))?;
 
 		if extent_count != 0 {
 

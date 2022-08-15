@@ -1,4 +1,4 @@
-use linux::ctypes::ioctl_constants::*;
+use crate::linux::ctypes::ioctl_constants::*;
 
 #[ repr (C) ]
 #[ derive (Copy, Clone, Debug) ]

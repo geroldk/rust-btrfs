@@ -1,4 +1,4 @@
-use linux::imports::*;
+use crate::linux::imports::*;
 
 // ---------- file descriptor with destructor
 
@@ -19,7 +19,7 @@ impl FileDescriptor {
 		// TODO should be able to do this cleanly on linux...
 
 		let path_string =
-			try! (
+			 (
 
 			path.to_str ().ok_or (
 
@@ -29,13 +29,13 @@ impl FileDescriptor {
 
 			)
 
-		).to_owned ();
+		).to_owned ()?;
 
 		let path_c =
-			try! (
+			 (
 
 			CString::new (
-				path_string.into_bytes (),
+				path_string.as_bytes(),
 			).map_err (
 				|_|
 
@@ -43,7 +43,7 @@ impl FileDescriptor {
 					"Invalid characters in path: {}",
 					path.to_string_lossy ())
 
-			)
+			)?
 
 		);
 

@@ -6,9 +6,11 @@
 //! capacity, and a high level of usage may indicate that a balance operation
 //! is required.
 
-use linux::imports::*;
-use nix::Errno as NixErrno;
+//use linux::imports::*;
+
 use nix::Error as NixError;
+
+use crate::linux::imports::*;
 
 // ---------- get filesystem info
 
@@ -48,7 +50,7 @@ pub fn get_filesystem_info (
 				c_fs_info_args.num_devices,
 
 			filesystem_id:
-				Uuid::from_bytes (
+				Uuid::from_slice (
 					& c_fs_info_args.filesystem_id,
 				).unwrap (),
 
@@ -76,10 +78,10 @@ pub fn get_device_info (
 
 	} {
 
-		Err (NixError::Sys (NixErrno::ENODEV)) =>
+		Err (NixError::ENODEV) =>
 			return Ok (None),
 
-		Err (NixError::Sys (errno)) =>
+		Err (errno) =>
 			return Err (
 				format! (
 					"Os error {} getting device info",
@@ -101,7 +103,7 @@ pub fn get_device_info (
 		device_id:
 			c_dev_info_args.devid,
 
-		uuid: Uuid::from_bytes (
+		uuid: Uuid::from_slice (
 			& c_dev_info_args.uuid,
 		).unwrap (),
 
@@ -129,10 +131,10 @@ pub fn get_device_infos (
 	for device_id in 0 .. filesystem_info.max_id + 1 {
 
 		let device_info_option =
-			try! (
+			 (
 				get_device_info (
 					file_descriptor,
-					device_id));
+					device_id))?;
 
 		if device_info_option.is_none () {
 			continue;

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::slice;
 
-use crc::crc32;
+use crc::{Crc, CRC_32_ISCSI};
 
 #[ derive (Clone) ]
 pub struct BtrfsDevice {
@@ -95,8 +95,9 @@ impl BtrfsChecksum {
 		bytes: & [u8],
 	) -> BtrfsChecksum {
 
+
 		let checksum_u32 =
-			crc32::checksum_castagnoli (
+		Crc::<u32>::new(&CRC_32_ISCSI).checksum (
 				bytes);
 
 		BtrfsChecksum {

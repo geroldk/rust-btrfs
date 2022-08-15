@@ -1,7 +1,7 @@
 use std::mem;
 use std::slice;
 
-use diskformat::*;
+use crate::diskformat::*;
 
 #[ derive (Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd) ]
 pub struct BtrfsChunkItem <'a> {

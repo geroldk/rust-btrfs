@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use diskformat::*;
+use crate::diskformat::*;
 
 pub struct BtrfsTree {
 }
