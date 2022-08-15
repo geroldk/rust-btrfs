@@ -242,7 +242,9 @@ pub fn deduplicate_files_with_source <
 
 	// TODO
 	for i in 0 ..  dedupe_range.dest_infos.len() {
+		if dedupe_range.dest_infos[i].status == DedupeRangeStatus::Differs {
 		println!("{:?} {:?} {:?}", dedupe_range.dest_infos[i].status, source_filename, dest_filenames[i].as_ref())
+		}
 	}
 
 	Ok (())

@@ -108,7 +108,7 @@ fn get_c_file_extent_map (
 	if stat_result != 0 {
 
 		return Err (
-			io::Error::from_raw_os_error(stat_result));
+			io::Error::last_os_error());
 
 	};
 
