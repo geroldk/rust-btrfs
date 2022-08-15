@@ -19,7 +19,7 @@
 
 
 [dependencies]
-
+	anyhow = "1.0.61"
 	crc = "3.0.0"
 	flate2 = "1.0.24"
 	lazy_static = "1.4.0"

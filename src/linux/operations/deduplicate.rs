@@ -12,6 +12,8 @@
 //! limit, or deduplicate a set of files in batches, using the same source file
 //! each time, which should eventually have exactly the same result.
 
+use anyhow::Context;
+
 use crate::linux::imports::*;
 
 use std::{io, fs::{OpenOptions, File}, os::unix::prelude::AsRawFd};
@@ -22,7 +24,7 @@ use std::{io, fs::{OpenOptions, File}, os::unix::prelude::AsRawFd};
 pub fn deduplicate_range (
 	file_descriptor: libc::c_int,
 	dedupe_range: & mut DedupeRange,
-) -> io::Result <()> {
+) -> anyhow::Result <()> {
 
 	// allocate c structs
 
@@ -105,7 +107,7 @@ pub fn deduplicate_range (
 		ioctl_file_dedupe_range (
 			file_descriptor,
 			c_dedupe_range)
-	}?;
+	}.context("IOCTL CALL")?;
 
 	// decode c result
 
@@ -130,7 +132,7 @@ pub fn deduplicate_range (
 				DedupeRangeStatus::Differs,
 
 			unrecognised_status =>
-				return Err(io::Error::from_raw_os_error(unrecognised_status))
+				return Err(io::Error::from_raw_os_error(unrecognised_status)).context("Status field in INFO")
 				//)Err (
 				//	format! (
 				//		"Unrecognised dedupe status: {}",
@@ -161,10 +163,9 @@ pub fn deduplicate_files_with_source <
 > (
 	source_filename: AsPath1,
 	dest_filenames: & [AsPath2],
-) -> io::Result <()> {
+) -> anyhow::Result <()> {
 
-	let source_filename =
-		source_filename.as_ref ();
+	let source_filename = source_filename.as_ref();
 
 	// nothing to do unless there is are no dest filenames
 
@@ -175,25 +176,12 @@ pub fn deduplicate_files_with_source <
 	// open files
 
 	let source_file_metadata =
-		(
 
 		fs::metadata (
 			source_filename,
-		)?
+		).with_context(|| format!("{:?}",source_filename.to_owned()))?;
 
-	);
-
-	let source_file_descriptor =
-		
-		
-			match OpenOptions::new().read(true).write(true).open(source_filename)  {
- 				o@Ok(_)  => o,
-				Err(error) => {
-					println!("{} {}", source_filename.to_string_lossy(), &error);
-					Err(io::Error::new(error.kind(), source_filename.to_string_lossy()))
-				}
-
-			}?;
+	let source_file_descriptor = OpenOptions::new().read(true).write(true).open(source_filename).with_context(||source_filename.to_string_lossy().to_string())?;
 
 	
 	
@@ -205,15 +193,7 @@ pub fn deduplicate_files_with_source <
 
 		let dest_filename =
 			dest_filename.as_ref ();
-
-		let target_file_descriptor = 				match OpenOptions::new().read(true).write(true).open(dest_filename)  {
-			o@Ok(_)  => o,
-			Err(error) => {
-				println!("{} {}", source_filename.to_string_lossy(), &error);
-				Err(io::Error::new(error.kind(), source_filename.to_string_lossy()))
-			}
-
-	   }?;
+		let target_file_descriptor = OpenOptions::new().read(true).write(true).open(dest_filename).with_context(|| dest_filename.to_string_lossy().to_string())?;
 
 
 		target_file_descriptors.push (
@@ -251,7 +231,7 @@ pub fn deduplicate_files_with_source <
 	(
 		deduplicate_range (
 			source_file_descriptor.as_raw_fd (),
-			& mut dedupe_range))?;
+			& mut dedupe_range)).with_context(|| format!("{} {}", dest_filenames.into_iter().map(|x|x.as_ref().to_string_lossy().to_string()).reduce(|a,b|a+";"+&b).unwrap(), source_filename.to_string_lossy().to_string()))?;
 
 	// process result
 
@@ -275,7 +255,7 @@ pub fn deduplicate_files_with_source <
 
 pub fn deduplicate_files <AsPath: AsRef <Path>> (
 	filenames: & [AsPath],
-) -> io::Result <()> {
+) -> anyhow::Result <()> {
 
 	// nothing to do unless there is more than one filename
 
