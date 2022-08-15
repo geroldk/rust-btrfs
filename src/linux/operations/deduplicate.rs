@@ -132,7 +132,7 @@ pub fn deduplicate_range (
 				DedupeRangeStatus::Differs,
 
 			unrecognised_status =>
-				return Err(io::Error::from_raw_os_error(unrecognised_status)).context("Status field in INFO")
+				return Err(io::Error::from_raw_os_error(unrecognised_status*-1)).context("Status field in INFO")
 				//)Err (
 				//	format! (
 				//		"Unrecognised dedupe status: {}",
