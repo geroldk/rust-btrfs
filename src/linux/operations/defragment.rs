@@ -1,3 +1,5 @@
+use std::{fs::OpenOptions, os::unix::prelude::AsRawFd};
+
 use crate::linux::imports::*;
 
 // --------- high level wrapper
@@ -9,26 +11,16 @@ pub fn defragment_file <
 	extent_threshold: u32,
 	compression_type: CompressionType,
 	flush_to_disk: bool,
-) -> Result <(), String> {
+) -> io::Result <()> {
 
 	let file_path =
 		file_path.as_ref ();
 
-	let file_descriptor =
-		FileDescriptor::open (
-			file_path,
-			libc::O_RDONLY,
-		).map_err (
-			|error|
+	let file_descriptor = OpenOptions::new().read(true).write(false).open(file_path)?;
 
-			format! (
-				"Error opening file: {}",
-				error)
-
-		) ?;
 
 	defragment_range (
-		file_descriptor.get_value (),
+		file_descriptor.as_raw_fd(),
 		0,
 		-1_i64 as u64,
 		extent_threshold,
@@ -45,7 +37,7 @@ pub fn defragment_range (
 	extent_threshold: u32,
 	compression_type: CompressionType,
 	flush_to_disk: bool,
-) -> Result <(), String> {
+) -> io::Result <()> {
 
 	let defrag_range_args =
 		IoctlDefragRangeArgs {
@@ -77,14 +69,7 @@ pub fn defragment_range (
 			& defrag_range_args as * const IoctlDefragRangeArgs,
 		)
 
-	}.map_err (
-		|error|
-
-		format! (
-			"Defragment IOCTL returned {}",
-			error)
-
-	) ?;
+	}?;
 
 	// return ok
 

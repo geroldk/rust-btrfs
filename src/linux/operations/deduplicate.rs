@@ -14,13 +14,15 @@
 
 use crate::linux::imports::*;
 
+use std::{io, fs::{OpenOptions, File}, os::unix::prelude::AsRawFd};
+
 /// This function maps directly onto the kernel's deduplicate range
 /// functionality.
 
 pub fn deduplicate_range (
 	file_descriptor: libc::c_int,
 	dedupe_range: & mut DedupeRange,
-) -> Result <(), String> {
+) -> io::Result <()> {
 
 	// allocate c structs
 
@@ -84,7 +86,7 @@ pub fn deduplicate_range (
 			IoctlFileDedupeRangeInfo {
 
 			dest_fd:
-				dest_info.dest_fd,
+				dest_info.dest_fd as i64,
 
 			dest_offset:
 				dest_info.dest_offset,
@@ -100,19 +102,10 @@ pub fn deduplicate_range (
 	// perform ioctl
 
 	unsafe {
-
 		ioctl_file_dedupe_range (
 			file_descriptor,
 			c_dedupe_range)
-
-	}.map_err (
-		|error|
-
-		format! (
-			"Dedupe ioctl returned {}",
-			error)
-
-	) ?;
+	}?;
 
 	// decode c result
 
@@ -137,11 +130,13 @@ pub fn deduplicate_range (
 				DedupeRangeStatus::Differs,
 
 			unrecognised_status =>
-				return Err (
-					format! (
-						"Unrecognised dedupe status: {}",
-						unrecognised_status)
-				),
+				return Err(io::Error::from_raw_os_error(unrecognised_status))
+				//)Err (
+				//	format! (
+				//		"Unrecognised dedupe status: {}",
+				//		unrecognised_status)
+				//)
+				,
 
 		};
 
@@ -166,7 +161,7 @@ pub fn deduplicate_files_with_source <
 > (
 	source_filename: AsPath1,
 	dest_filenames: & [AsPath2],
-) -> Result <(), String> {
+) -> io::Result <()> {
 
 	let source_filename =
 		source_filename.as_ref ();
@@ -184,37 +179,18 @@ pub fn deduplicate_files_with_source <
 
 		fs::metadata (
 			source_filename,
-		).map_err (
-			|io_error|
-
-			format! (
-				"Error getting metadata for {:?}: {}",
-				source_filename,
-				io_error)
-
 		)?
 
 	);
 
 	let source_file_descriptor =
-		(
+		
+		
+			OpenOptions::new().read(true).write(true).open(source_filename)?;
 
-		FileDescriptor::open (
-			source_filename,
-			libc::O_RDWR,
-		).map_err (
-			|error|
+	
 
-			format! (
-				"Error opening file: {:?}: {}",
-				source_filename,
-				error)
-
-		)?
-
-	);
-
-	let mut target_file_descriptors: Vec <FileDescriptor> =
+	let mut target_file_descriptors: Vec <File> =
 		Vec::new ();
 
 	for dest_filename in dest_filenames {
@@ -222,23 +198,8 @@ pub fn deduplicate_files_with_source <
 		let dest_filename =
 			dest_filename.as_ref ();
 
-		let target_file_descriptor =
-			 (
+		let target_file_descriptor = 			OpenOptions::new().read(true).write(true).open(dest_filename)?;
 
-			FileDescriptor::open (
-				dest_filename,
-				libc::O_RDWR,
-			).map_err (
-				|error|
-
-				format! (
-					"Error opening file: {:?}: {}",
-					dest_filename,
-					error)
-
-			)?
-
-		);
 
 		target_file_descriptors.push (
 			target_file_descriptor);
@@ -260,7 +221,7 @@ pub fn deduplicate_files_with_source <
 				|target_file_descriptor|
 
 			DedupeRangeDestInfo {
-				dest_fd: target_file_descriptor.get_value () as i64,
+				dest_fd: target_file_descriptor.as_raw_fd(),
 				dest_offset: 0,
 				bytes_deduped: 0,
 				status: DedupeRangeStatus::Same,
@@ -274,7 +235,7 @@ pub fn deduplicate_files_with_source <
 
 	(
 		deduplicate_range (
-			source_file_descriptor.get_value (),
+			source_file_descriptor.as_raw_fd (),
 			& mut dedupe_range))?;
 
 	// process result
@@ -297,7 +258,7 @@ pub fn deduplicate_files_with_source <
 
 pub fn deduplicate_files <AsPath: AsRef <Path>> (
 	filenames: & [AsPath],
-) -> Result <(), String> {
+) -> io::Result <()> {
 
 	// nothing to do unless there is more than one filename
 

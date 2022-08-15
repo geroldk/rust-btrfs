@@ -1,3 +1,5 @@
+use std::{fs::OpenOptions, os::unix::prelude::AsRawFd};
+
 use crate::linux::imports::*;
 
 // --------- high level wrapper
@@ -13,33 +15,18 @@ pub fn get_file_extent_map_for_path <
 	PathRef: AsRef <Path>
 > (
 	file_path: PathRef,
-) -> Result <Vec <FileExtent>, String> {
+) -> io::Result <Vec <FileExtent>> {
 
-	let file_descriptor =
-		 (
-
-		FileDescriptor::open (
-			file_path,
-			libc::O_RDONLY,
-		).map_err (
-			|error|
-
-			format! (
-				"Error opening file: {}",
-				error)
-
-		)?
-
-	);
+	let file_descriptor = OpenOptions::new().read(true).write(false).open(file_path)?;
 
 	get_file_extent_map (
-		file_descriptor.get_value ())
+		file_descriptor.as_raw_fd())
 
 }
 
 pub fn get_file_extent_map (
 	file_descriptor: libc::c_int,
-) -> Result <Vec <FileExtent>, String> {
+) -> io::Result <Vec <FileExtent>> {
 
 	// call ioctl in loop to get all extents
 
@@ -104,7 +91,7 @@ struct CFileExtentMapResult {
 fn get_c_file_extent_map (
 	file_descriptor: libc::c_int,
 	extent_count: u32,
-) -> Result <CFileExtentMapResult, String> {
+) -> io::Result <CFileExtentMapResult> {
 
 	// get file size
 
@@ -121,9 +108,9 @@ fn get_c_file_extent_map (
 	if stat_result != 0 {
 
 		return Err (
-			"Error getting file size".to_owned ());
+			io::Error::from_raw_os_error(stat_result));
 
-	}
+	};
 
 	// allocate buffer
 
@@ -175,14 +162,7 @@ fn get_c_file_extent_map (
 			file_descriptor,
 			c_fiemap_info as * mut IoctlFiemap)
 
-	}.map_err (
-		|error|
-
-		format! (
-			"Error getting file extent map: {}",
-			error)
-
-	) ?;
+	}?;
 
 	// return
 
