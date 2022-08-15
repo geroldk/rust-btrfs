@@ -188,9 +188,9 @@ pub fn deduplicate_files_with_source <
 		
 			match OpenOptions::new().read(true).write(true).open(source_filename)  {
  				o@Ok(_)  => o,
-				e@Err(_) => {
-					println!("{}", source_filename.to_string_lossy());
-					e
+				Err(error) => {
+					println!("{} {}", source_filename.to_string_lossy(), &error);
+					Err(io::Error::new(error.kind(), source_filename.to_string_lossy()))
 				}
 
 			}?;
@@ -208,10 +208,10 @@ pub fn deduplicate_files_with_source <
 
 		let target_file_descriptor = 				match OpenOptions::new().read(true).write(true).open(dest_filename)  {
 			o@Ok(_)  => o,
-		   e@Err(_) => {
-			   println!("{}", dest_filename.to_string_lossy());
-			   e
-		   }
+			Err(error) => {
+				println!("{} {}", source_filename.to_string_lossy(), &error);
+				Err(io::Error::new(error.kind(), source_filename.to_string_lossy()))
+			}
 
 	   }?;
 
