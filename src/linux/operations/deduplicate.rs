@@ -79,6 +79,10 @@ pub fn deduplicate_range (
 
 	};
 
+	
+		
+	
+
 	for index in 0 .. dedupe_range.dest_infos.len () {
 
 		let dest_info =
@@ -141,8 +145,9 @@ pub fn deduplicate_range (
 				,
 
 		};
+	};
 
-	}
+
 
 	// return
 
@@ -227,20 +232,22 @@ pub fn deduplicate_files_with_source <
 	};
 
 	// perform dedupe
-
+loop {
 	(
 		deduplicate_range (
 			source_file_descriptor.as_raw_fd (),
 			& mut dedupe_range)).with_context(|| format!("{} {}", dest_filenames.into_iter().map(|x|x.as_ref().to_string_lossy().to_string()).reduce(|a,b|a+";"+&b).unwrap(), source_filename.to_string_lossy().to_string()))?;
 
-	// process result
-
-	// TODO
-	for i in 0 ..  dedupe_range.dest_infos.len() {
-		if dedupe_range.dest_infos[i].status == DedupeRangeStatus::Differs {
-		println!("{:?} {:?} {:?}", dedupe_range.dest_infos[i].status, source_filename, dest_filenames[i].as_ref())
-		}
+	let dupped = dedupe_range.dest_infos[1].bytes_deduped;
+	if dupped == dedupe_range.src_length {
+		break;
 	}
+		dedupe_range.src_offset += dupped;		
+		for i in 0 .. dedupe_range.dest_infos.len() {
+			dedupe_range.dest_infos[i].dest_offset += dupped
+		}
+		}
+	
 
 	Ok (())
 
