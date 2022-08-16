@@ -198,7 +198,7 @@ pub fn deduplicate_files_with_source <
 
 		let dest_filename =
 			dest_filename.as_ref ();
-		let target_file_descriptor = OpenOptions::new().read(true).write(true).open(dest_filename).with_context(|| dest_filename.to_string_lossy().to_string())?;
+		let target_file_descriptor = OpenOptions::new().read(true).write(false).open(dest_filename).with_context(|| dest_filename.to_string_lossy().to_string())?;
 
 
 		target_file_descriptors.push (
