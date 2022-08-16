@@ -242,7 +242,8 @@ loop {
 	if dupped == dedupe_range.src_length {
 		break;
 	}
-		dedupe_range.src_offset += dupped;		
+		dedupe_range.src_offset += dupped;	
+		dedupe_range.src_length -= dupped;	
 		for i in 0 .. dedupe_range.dest_infos.len() {
 			dedupe_range.dest_infos[i].dest_offset += dupped
 		}
