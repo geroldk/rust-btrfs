@@ -238,7 +238,7 @@ loop {
 			source_file_descriptor.as_raw_fd (),
 			& mut dedupe_range)).with_context(|| format!("{} {}", dest_filenames.into_iter().map(|x|x.as_ref().to_string_lossy().to_string()).reduce(|a,b|a+";"+&b).unwrap(), source_filename.to_string_lossy().to_string()))?;
 
-	let dupped = dedupe_range.dest_infos[1].bytes_deduped;
+	let dupped = dedupe_range.dest_infos[0].bytes_deduped;
 	if dupped == dedupe_range.src_length {
 		break;
 	}
